@@ -76,7 +76,7 @@ namespace XIVSlothCombo.Combos.PvE
         public static bool CanUseLucid(uint actionID, int MPThreshold, bool weave = true) =>
             CustomComboFunctions.ActionReady(LucidDreaming)
             && CustomComboFunctions.LocalPlayer.CurrentMp <= MPThreshold
-            && (weave && CustomComboFunctions.CanSpellWeave(actionID));
+            && (!weave || CustomComboFunctions.CanSpellWeave(actionID));
 
         internal class ALL_IslandSanctuary_Sprint : CustomCombo
         {
@@ -134,7 +134,7 @@ namespace XIVSlothCombo.Combos.PvE
             protected override uint Invoke(uint actionID, uint lastComboMove, float comboTime, byte level)
             {
                 if ((actionID is WHM.Raise or AST.Ascend or SGE.Egeiro)
-                    || (actionID is SCH.Resurrection && LocalPlayer.ClassJob.Id is SCH.JobID))
+                    || (actionID is SCH.Resurrection && LocalPlayer.ClassJob.Value.RowId is SCH.JobID))
                 {
                     if (ActionReady(Swiftcast))
                         return Swiftcast;
@@ -173,13 +173,13 @@ namespace XIVSlothCombo.Combos.PvE
             protected override uint Invoke(uint actionID, uint lastComboMove, float comboTime, byte level)
             {
                 if ((actionID is BLU.AngelWhisper or RDM.Verraise)
-                    || (actionID is SMN.Resurrection && LocalPlayer.ClassJob.Id is SMN.JobID))
+                    || (actionID is SMN.Resurrection && LocalPlayer.ClassJob.RowId is SMN.JobID))
                 {
                     if (HasEffect(Buffs.Swiftcast) || HasEffect(RDM.Buffs.Dualcast))
                         return actionID;
                     if (IsOffCooldown(Swiftcast))
                         return Swiftcast;
-                    if (LocalPlayer.ClassJob.Id is RDM.JobID &&
+                    if (LocalPlayer.ClassJob.RowId is RDM.JobID &&
                         ActionReady(RDM.Vercure))
                         return RDM.Vercure;
                 }

@@ -1,5 +1,6 @@
 using Dalamud.Game.ClientState.JobGauge.Types;
 using Dalamud.Game.ClientState.Objects.Types;
+using ECommons.DalamudServices;
 using System.Collections.Generic;
 using System.Linq;
 using XIVSlothCombo.Combos.PvE.Content;
@@ -202,6 +203,7 @@ namespace XIVSlothCombo.Combos.PvE
                 }
                 else ActionFound = StoneGlareList.Contains(actionID); //default handling
 
+                Svc.Log.Debug($"HERE");
                 if (ActionFound)
                 {
                     WHMGauge? gauge = GetJobGauge<WHMGauge>();
@@ -350,12 +352,9 @@ namespace XIVSlothCombo.Combos.PvE
                             || hasMedica3 != null && hasMedica3.RemainingTime <= Config.WHM_AoEHeals_MedicaTime) // ^
                         && (ActionReady(Medica2) || ActionReady(Medica3)))
                     {
-                        // Medica 3 upgrade
-                        if (IsEnabled(CustomComboPreset.WHM_AoEHeals_Medica3)
-                            && LevelChecked(Medica3))
-                            return Medica3;
-
-                        return Medica2;
+                        return LevelChecked(Medica3)
+                            ? Medica3
+                            : Medica2;
                     }
 
                     if (IsEnabled(CustomComboPreset.WHM_AoEHeals_Cure3)
@@ -429,6 +428,7 @@ namespace XIVSlothCombo.Combos.PvE
         internal class WHM_AoE_DPS : CustomCombo
         {
             protected internal override CustomComboPreset Preset { get; } = CustomComboPreset.WHM_AoE_DPS;
+            internal static int AssizeCount => ActionWatching.CombatActions.Count(x => x == Assize);
 
             protected override uint Invoke(uint actionID, uint lastComboMove, float comboTime, byte level)
             {
@@ -439,6 +439,14 @@ namespace XIVSlothCombo.Combos.PvE
                     bool liliesFullNoBlood = gauge.Lily == 3 && gauge.BloodLily < 3;
                     bool liliesNearlyFull = gauge.Lily == 2 && gauge.LilyTimer >= 17000;
                     bool PresenceOfMindReady = ActionReady(PresenceOfMind) && (!Config.WHM_AoEDPS_PresenceOfMindWeave);
+
+                    if (IsEnabled(CustomComboPreset.WHM_AoE_DPS_SwiftHoly) &&
+                        ActionReady(All.Swiftcast) &&
+                        AssizeCount == 0 && !IsMoving && InCombat())
+                        return All.Swiftcast;
+                    if (IsEnabled(CustomComboPreset.WHM_AoE_DPS_SwiftHoly) &&
+                        WasLastAction(All.Swiftcast))
+                        return actionID;
 
                     if (IsEnabled(CustomComboPreset.WHM_AoE_DPS_Assize) && ActionReady(Assize))
                         return Assize;

@@ -203,6 +203,7 @@ namespace XIVSlothCombo.Combos.PvE
                 }
                 else ActionFound = StoneGlareList.Contains(actionID); //default handling
 
+                Svc.Log.Debug($"HERE");
                 if (ActionFound)
                 {
                     WHMGauge? gauge = GetJobGauge<WHMGauge>();
